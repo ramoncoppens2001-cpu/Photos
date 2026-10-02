@@ -1,0 +1,1197 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Inspectiefoto's benoemen</title>
+<style>
+:root{
+  --window:#FFFFFF; --toolbar:rgba(246,246,247,.86); --sidebar:#F3F3F5; --canvas:#D8D8DC;
+  --text:#1D1D1F; --secondary:#6E6E73; --tertiary:#A1A1A6; --sep:rgba(0,0,0,.11);
+  --accent:#007AFF; --accent-soft:rgba(0,122,255,.13); --on-accent:#FFFFFF;
+  --control:rgba(0,0,0,.055); --control-hover:rgba(0,0,0,.09); --seg-on:#FFFFFF;
+  --menu:rgba(248,248,249,.94); --hud:rgba(40,40,42,.88); --hud-text:#F5F5F7; --field:#FFFFFF;
+  --page-shadow:0 0 0 .5px rgba(0,0,0,.08),0 1px 3px rgba(0,0,0,.16),0 6px 20px rgba(0,0,0,.10);
+  --pop-shadow:0 0 0 .5px rgba(0,0,0,.12),0 10px 30px rgba(0,0,0,.18);
+  --danger:#FF3B30; --ok:#34C759; --ai:#9A3FD0; --ai-soft:rgba(175,82,222,.13);
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  background:var(--window);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --window:#1E1E20; --toolbar:rgba(44,44,46,.86); --sidebar:#262628; --canvas:#161618;
+    --text:#F5F5F7; --secondary:#98989D; --tertiary:#6C6C70; --sep:rgba(255,255,255,.1);
+    --accent:#0A84FF; --accent-soft:rgba(10,132,255,.26);
+    --control:rgba(255,255,255,.07); --control-hover:rgba(255,255,255,.12); --seg-on:#636366;
+    --menu:rgba(44,44,46,.95); --hud:rgba(58,58,60,.92); --field:#2C2C2E;
+    --page-shadow:0 0 0 .5px rgba(255,255,255,.06),0 2px 6px rgba(0,0,0,.5),0 10px 26px rgba(0,0,0,.4);
+    --pop-shadow:0 0 0 .5px rgba(255,255,255,.12),0 12px 34px rgba(0,0,0,.5);
+    --danger:#FF453A; --ok:#30D158; --ai:#D08CF5; --ai-soft:rgba(191,90,242,.22);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --window:#1E1E20; --toolbar:rgba(44,44,46,.86); --sidebar:#262628; --canvas:#161618;
+  --text:#F5F5F7; --secondary:#98989D; --tertiary:#6C6C70; --sep:rgba(255,255,255,.1);
+  --accent:#0A84FF; --accent-soft:rgba(10,132,255,.26);
+  --control:rgba(255,255,255,.07); --control-hover:rgba(255,255,255,.12); --seg-on:#636366;
+  --menu:rgba(44,44,46,.95); --hud:rgba(58,58,60,.92); --field:#2C2C2E;
+  --page-shadow:0 0 0 .5px rgba(255,255,255,.06),0 2px 6px rgba(0,0,0,.5),0 10px 26px rgba(0,0,0,.4);
+  --pop-shadow:0 0 0 .5px rgba(255,255,255,.12),0 12px 34px rgba(0,0,0,.5);
+  --danger:#FF453A; --ok:#30D158; --ai:#D08CF5; --ai-soft:rgba(191,90,242,.22);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{height:100%;margin:0;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{height:100%;margin:0;background:var(--window);color:var(--text);overflow:hidden;
+  font:13px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;-webkit-user-select:none;user-select:none}
+[hidden]{display:none!important}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:default;-webkit-tap-highlight-color:transparent}
+:focus{outline:none}
+:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:1px;border-radius:6px}
+svg.i{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+img{max-width:100%}
+
+.app{height:100%;display:grid;grid-template-rows:auto 1fr}
+
+/* toolbar */
+.toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:12px;height:52px;padding:0 12px;
+  background:var(--toolbar);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:1px solid var(--sep);position:relative;z-index:30}
+.progress{position:absolute;left:0;bottom:-1px;height:2px;background:var(--accent);width:0;transition:width .25s ease;border-radius:0 2px 2px 0}
+.tb-left,.tb-right,.tb-center{display:flex;align-items:center;gap:6px;min-width:0}
+.tb-right{justify-content:flex-end}
+.title{min-width:0;margin-left:6px;line-height:1.2}
+.title-main{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.title-sub{color:var(--secondary);font-size:11.5px;white-space:nowrap;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis}
+.tb-btn{height:28px;min-width:32px;padding:0 7px;display:inline-flex;align-items:center;justify-content:center;gap:5px;border:0;border-radius:6px;background:transparent;color:var(--text);white-space:nowrap}
+.tb-btn:hover:not(:disabled){background:var(--control-hover)}
+.tb-btn:active:not(:disabled){background:var(--control-hover);filter:brightness(.95)}
+.tb-btn:disabled{color:var(--tertiary)}
+.tb-btn[aria-pressed="true"],.tb-btn[aria-expanded="true"]{background:var(--control-hover)}
+.tb-btn.txt{padding:0 10px;gap:6px}
+.tb-btn.ai{color:var(--ai)}
+.tb-btn.ai:disabled{color:var(--tertiary)}
+.tb-btn.ai.running{background:var(--ai-soft)}
+.group{display:flex;align-items:center;background:var(--control);border-radius:7px;padding:2px}
+.group .tb-btn{height:26px;min-width:30px;border-radius:5px}
+.counter{min-width:64px;font-size:12px;font-variant-numeric:tabular-nums;text-align:center;color:var(--text)}
+.seg{display:flex;background:var(--control);border-radius:7px;padding:2px;gap:1px}
+.seg button{width:34px;height:26px;border:0;border-radius:5px;background:transparent;display:grid;place-items:center;color:var(--text)}
+.seg button:hover:not(:disabled):not([aria-pressed="true"]){background:var(--control-hover)}
+.seg button[aria-pressed="true"]{background:var(--seg-on);box-shadow:0 .5px 1.5px rgba(0,0,0,.2),0 0 0 .5px rgba(0,0,0,.05)}
+.seg button:disabled{color:var(--tertiary)}
+.pill{height:28px;padding:0 14px;border:0;border-radius:7px;background:var(--accent);color:var(--on-accent);font-weight:500;white-space:nowrap}
+.pill:hover:not(:disabled){filter:brightness(1.08)}
+.pill:active:not(:disabled){filter:brightness(.92)}
+.pill:disabled{background:var(--control);color:var(--tertiary)}
+.btn2{height:28px;padding:0 14px;border:0;border-radius:7px;background:var(--control);color:var(--text)}
+.btn2:hover{background:var(--control-hover)}
+.btn2.lg{height:32px;padding:0 16px;font-size:13.5px}
+.divider{width:1px;height:18px;background:var(--sep);margin:0 4px}
+.spin{width:14px;height:14px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .8s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* body */
+.main{display:flex;min-height:0;position:relative}
+.sidebar{width:200px;flex:none;display:grid;grid-template-rows:1fr auto;background:var(--sidebar);border-right:1px solid var(--sep);min-height:0}
+.thumbs{overflow-y:auto;overflow-x:hidden;padding:10px 0 20px;scrollbar-width:thin;overscroll-behavior:contain}
+.thumb{display:flex;flex-direction:column;align-items:center;gap:6px;padding:7px 12px;border-radius:0}
+.tbox{width:100%;height:108px;display:flex;align-items:center;justify-content:center;position:relative}
+.tbox img{max-width:100%;max-height:100%;display:block;border-radius:2px;box-shadow:0 0 0 .5px rgba(0,0,0,.12),0 1px 3px rgba(0,0,0,.18);-webkit-user-drag:none}
+.tph{width:82%;height:78%;border-radius:3px;background:var(--control);display:grid;place-items:center;color:var(--tertiary);font-size:11px;font-weight:600;letter-spacing:.02em}
+.thumb.is-current .tbox img,.thumb.is-current .tph{outline:3px solid var(--accent);outline-offset:3px}
+.tmeta{display:flex;align-items:center;gap:6px;max-width:100%;min-width:0;font-size:11.5px}
+.tnum{flex:none;padding:1px 7px;border-radius:9px;color:var(--secondary);font-size:11px;font-variant-numeric:tabular-nums}
+.thumb.is-current .tnum,.tile.is-current .tnum{background:var(--accent);color:#fff}
+.sdot{width:7px;height:7px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 1.3px var(--tertiary)}
+.is-named .sdot{background:var(--ok);box-shadow:none}
+.is-ai .sdot{background:var(--ai);box-shadow:none}
+.tname{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tname.is-blank{color:var(--tertiary)}
+.is-ai .tname{color:var(--ai)}
+.is-busy .tbox::after,.is-busy .tile-img::after{content:"";position:absolute;inset:0;border-radius:3px;
+  background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.55) 50%,transparent 70%) 0 0/250% 100%;animation:sheen 1.3s linear infinite;pointer-events:none}
+@keyframes sheen{from{background-position:150% 0}to{background-position:-100% 0}}
+.side-foot{display:flex;align-items:center;gap:2px;padding:6px 8px;border-top:1px solid var(--sep)}
+.side-foot .tb-btn{min-width:28px;height:26px;padding:0 5px}
+.side-foot .spacer{flex:1}
+.side-foot svg.i{width:16px;height:16px}
+.scrim{position:absolute;inset:0;z-index:19;background:rgba(0,0,0,.25)}
+
+.viewer{flex:1;position:relative;background:var(--canvas);min-width:0;min-height:0;overflow:hidden}
+.stage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:22px 28px 112px;overflow:hidden}
+.stage img{max-width:100%;max-height:100%;object-fit:contain;display:block;box-shadow:var(--page-shadow);cursor:zoom-in;-webkit-user-drag:none;touch-action:none}
+.stage.zoomed{display:block;overflow:auto;padding:0;scrollbar-width:thin}
+.stage.zoomed img{max-width:none;max-height:none;margin:0 auto;cursor:zoom-out;box-shadow:none;touch-action:auto}
+.stage.zoomed.panning img{cursor:grabbing}
+.bad{color:var(--secondary);text-align:center;font-size:13px;max-width:320px}
+.bad b{display:block;color:var(--text);font-size:15px;margin-bottom:4px}
+
+.empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px}
+.empty-inner{max-width:380px}
+.empty-icon{width:76px;height:76px;margin:0 auto 20px;filter:drop-shadow(0 4px 10px rgba(0,0,0,.18))}
+.empty-icon svg{display:block}
+.empty h1{font-size:22px;font-weight:600;letter-spacing:-.01em;margin:0 0 6px}
+.empty p{color:var(--secondary);font-size:13.5px;margin:0 0 20px}
+.empty .pill{height:32px;padding:0 18px;font-size:13.5px}
+.empty .keys{margin-top:22px;font-size:12px;color:var(--tertiary);line-height:1.7}
+kbd{font:inherit;font-size:11px;padding:1px 5px;border-radius:4px;background:var(--control);color:var(--secondary)}
+.viewer.dropping{box-shadow:inset 0 0 0 3px var(--accent)}
+.viewer.dropping .empty-icon{outline:3px solid var(--accent);outline-offset:10px;border-radius:18px}
+
+/* name bar */
+.namebar{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);z-index:10;width:min(640px,calc(100% - 24px));display:flex;align-items:flex-start;gap:8px;padding:7px;border-radius:14px;
+  background:var(--menu);box-shadow:var(--pop-shadow);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
+.nb-num{min-width:36px;height:36px;padding:0 6px;border-radius:9px;background:var(--control);display:grid;place-items:center;font-weight:600;font-size:13px;font-variant-numeric:tabular-nums;flex:none}
+.nb-num.named{background:var(--ok);color:#fff}
+.nb-field{flex:1;min-width:0;position:relative}
+.nb-input{width:100%;height:36px;border:0;border-radius:8px;background:var(--field);box-shadow:inset 0 0 0 1px var(--sep);padding:0 11px;font-size:15px;-webkit-user-select:text;user-select:text}
+.nb-input:focus{box-shadow:inset 0 0 0 1px var(--accent),0 0 0 3px var(--accent-soft)}
+.nb-input.is-ai{color:var(--ai)}
+.nb-input::placeholder{color:var(--tertiary)}
+.nb-meta{display:flex;align-items:center;gap:8px;min-height:22px;padding:3px 2px 0 11px;font-size:11.5px;color:var(--secondary)}
+.nb-file{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
+.nb-chip{flex:none;max-width:60%;display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 8px;border:0;border-radius:10px;background:var(--ai-soft);color:var(--ai);font-size:11.5px}
+.nb-chip span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nb-chip svg.i{width:12px;height:12px}
+.nb-chip:hover{filter:brightness(1.05)}
+.nb-btn{width:36px;height:36px;border:0;border-radius:9px;background:var(--control);display:grid;place-items:center;flex:none}
+.nb-btn:hover:not(:disabled){background:var(--control-hover)}
+.nb-btn.ai{color:var(--ai)}
+.nb-btn:disabled{color:var(--tertiary)}
+.nb-next{height:36px;padding:0 14px;border-radius:9px;flex:none;display:inline-flex;align-items:center;gap:6px}
+.nb-next svg.i{width:15px;height:15px}
+.suggest{position:absolute;left:0;right:0;bottom:calc(100% + 12px);padding:4px;border-radius:10px;background:var(--menu);box-shadow:var(--pop-shadow);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);max-height:240px;overflow:auto}
+.sg{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 9px;border-radius:6px;font-size:13.5px}
+.sg b{font-weight:600}
+.sg small{color:var(--tertiary);font-size:11px;flex:none}
+.sg:hover{background:var(--control-hover)}
+.sg.on{background:var(--accent);color:#fff}
+.sg.on small{color:rgba(255,255,255,.75)}
+
+/* gallery */
+.gallery{position:absolute;inset:0;overflow:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:20px 16px;padding:24px 28px 70px;align-content:start;scrollbar-width:thin}
+.tile{display:flex;flex-direction:column;gap:8px;min-width:0}
+.tile-img{position:relative;height:140px;border:0;padding:0;background:transparent;display:flex;align-items:center;justify-content:center;border-radius:4px}
+.tile-img img{max-width:100%;max-height:100%;display:block;box-shadow:var(--page-shadow);-webkit-user-drag:none}
+.tile.is-current .tile-img img,.tile.is-current .tph{outline:3px solid var(--accent);outline-offset:3px}
+.tile-row{display:flex;align-items:center;gap:6px;min-width:0}
+.tile-in{flex:1;min-width:0;height:28px;border:0;border-radius:7px;background:var(--field);box-shadow:inset 0 0 0 1px var(--sep);padding:0 8px;font-size:12.5px;-webkit-user-select:text;user-select:text}
+.tile-in:focus{box-shadow:inset 0 0 0 1px var(--accent),0 0 0 3px var(--accent-soft)}
+.tile.is-ai .tile-in::placeholder{color:var(--ai);opacity:.85}
+
+/* popovers, menu, toast, hud */
+.pop{position:fixed;z-index:120;width:320px;max-width:calc(100vw - 16px);padding:14px;border-radius:12px;background:var(--menu);box-shadow:var(--pop-shadow);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
+.pop h2{font-size:13px;font-weight:600;margin:0 0 10px}
+.field{display:block;margin-bottom:12px}
+.field span{display:block;font-size:12px;color:var(--secondary);margin-bottom:4px}
+.field input[type=text]{width:100%;height:30px;border:0;border-radius:7px;background:var(--field);box-shadow:inset 0 0 0 1px var(--sep);padding:0 9px;font-size:13.5px;-webkit-user-select:text;user-select:text}
+.field input[type=text]:focus{box-shadow:inset 0 0 0 1px var(--accent),0 0 0 3px var(--accent-soft)}
+.field small{display:block;font-size:11.5px;color:var(--tertiary);margin-top:4px}
+.switch-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;font-size:13px}
+.switch{position:relative;width:38px;height:22px;flex:none}
+.switch input{position:absolute;inset:0;opacity:0;margin:0}
+.switch i{position:absolute;inset:0;border-radius:11px;background:var(--control-hover);transition:background .15s;pointer-events:none}
+.switch i::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .15s}
+.switch input:checked+i{background:var(--ok)}
+.switch input:checked+i::after{transform:translateX(16px)}
+.switch input:focus-visible+i{outline:3px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:1px}
+.example{padding:8px 10px;border-radius:8px;background:var(--control);font-size:12px;color:var(--secondary);word-break:break-word}
+.example b{color:var(--text);font-weight:500}
+.menu{position:fixed;z-index:120;min-width:220px;padding:5px;border-radius:9px;background:var(--menu);box-shadow:var(--pop-shadow);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
+.menu button{display:flex;align-items:center;justify-content:space-between;gap:20px;width:100%;height:26px;padding:0 10px;border:0;border-radius:5px;background:transparent;text-align:left;font-size:13px;color:var(--text)}
+.menu button:hover:not(:disabled),.menu button:focus-visible{background:var(--accent);color:#fff;outline:none}
+.menu button:disabled{color:var(--tertiary)}
+.menu button.danger{color:var(--danger)}
+.menu button.danger:hover{color:#fff;background:var(--danger)}
+.menu hr{border:0;height:1px;background:var(--sep);margin:5px 8px}
+.toast{position:absolute;left:50%;top:14px;transform:translate(-50%,-8px);opacity:0;pointer-events:none;z-index:90;display:flex;align-items:center;gap:12px;max-width:calc(100% - 24px);
+  padding:8px 8px 8px 14px;border-radius:10px;background:var(--menu);box-shadow:var(--pop-shadow);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:opacity .18s,transform .18s;font-size:12.5px}
+.toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.toast span{min-width:0}
+.toast button{height:24px;padding:0 10px;border-radius:6px;border:0;background:var(--accent);color:#fff;font-weight:500;flex:none;white-space:nowrap}
+.toast.plain{padding-right:14px}
+.hud{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:95;display:flex;align-items:center;gap:12px;padding:12px 18px;border-radius:14px;
+  background:var(--hud);color:var(--hud-text);box-shadow:0 6px 20px rgba(0,0,0,.25);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);font-size:13px;font-variant-numeric:tabular-nums}
+
+@media (max-width:980px){ .tb-btn.txt span{display:none} }
+@media (max-width:860px){ .title{display:none} .sidebar{width:160px} .tbox{height:90px} }
+@media (max-width:640px){
+  .toolbar{grid-template-columns:auto 1fr auto;gap:4px;padding:0 6px}
+  .tb-center{justify-content:center}
+  .hide-narrow{display:none!important}
+  .sidebar{position:absolute;top:0;bottom:0;left:0;z-index:20;width:190px;box-shadow:4px 0 20px rgba(0,0,0,.2)}
+  .stage{padding:12px 10px 128px}
+  .namebar{bottom:10px;width:calc(100% - 16px);flex-wrap:wrap}
+  .nb-input{font-size:16px}
+  .nb-next span{display:none}
+  .nb-next{padding:0 11px}
+  .gallery{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));padding:16px 14px 60px;gap:16px 12px}
+  .tile-img{height:118px}
+  .tile-in{font-size:16px;height:32px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="toolbar">
+    <div class="tb-left">
+      <button class="tb-btn" id="sidebarBtn" title="Zijbalk tonen of verbergen" aria-label="Zijbalk" aria-pressed="true" disabled><svg class="i" viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M9 4.5v15"/></svg></button>
+      <div class="seg" id="viewSeg" aria-label="Weergave">
+        <button data-view="single" title="Eén foto tegelijk" aria-label="Eén foto" aria-pressed="true" disabled><svg class="i" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="m4 17.5 4.5-4.5 3.5 3.5 2.5-2.5 5.5 5"/></svg></button>
+        <button data-view="grid" title="Overzicht van alle foto's" aria-label="Overzicht" aria-pressed="false" disabled><svg class="i" viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="7" rx="1.2"/><rect x="13.5" y="4" width="6.5" height="7" rx="1.2"/><rect x="4" y="13" width="6.5" height="7" rx="1.2"/><rect x="13.5" y="13" width="6.5" height="7" rx="1.2"/></svg></button>
+      </div>
+      <div class="title"><div class="title-main" id="docTitle">Inspectiefoto's</div><div class="title-sub" id="docSub"></div></div>
+    </div>
+    <div class="tb-center">
+      <div class="group hide-narrow" id="navGroup">
+        <button class="tb-btn" id="prevBtn" title="Vorige foto (↑)" aria-label="Vorige foto" disabled><svg class="i" viewBox="0 0 24 24"><path d="m14.5 6-6 6 6 6"/></svg></button>
+        <span class="counter" id="counter">0 / 0</span>
+        <button class="tb-btn" id="nextBtn" title="Volgende foto (↓)" aria-label="Volgende foto" disabled><svg class="i" viewBox="0 0 24 24"><path d="m9.5 6 6 6-6 6"/></svg></button>
+      </div>
+      <div class="divider hide-narrow"></div>
+      <button class="tb-btn txt ai" id="aiAllBtn" title="Laat Claude alle foto's zonder naam bekijken en een naam voorstellen" hidden disabled><svg class="i" viewBox="0 0 24 24"><path d="M11 3.5l1.7 4.8 4.8 1.7-4.8 1.7L11 16.5l-1.7-4.8L4.5 10l4.8-1.7z"/><path d="M18 14.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg><span id="aiAllTxt">Herken alles</span></button>
+    </div>
+    <div class="tb-right">
+      <button class="tb-btn" id="settingsBtn" title="Bestandsnaam en instellingen" aria-label="Instellingen" aria-expanded="false"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button>
+      <button class="tb-btn" id="menuBtn" title="Meer" aria-label="Meer" aria-expanded="false" disabled><svg class="i" viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.1"/><circle cx="12" cy="12" r="1.1"/><circle cx="18" cy="12" r="1.1"/></svg></button>
+      <button class="tb-btn" id="openBtn" title="Foto's toevoegen (Ctrl O)" aria-label="Foto's toevoegen"><svg class="i" viewBox="0 0 24 24"><path d="M3.5 7.5a2 2 0 0 1 2-2h3.6l2 2h7.4a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/></svg></button>
+      <button class="pill" id="saveBtn" title="Bewaar alle foto's met hun nieuwe naam als zip (Ctrl S)" disabled>Bewaar</button>
+    </div>
+    <div class="progress" id="progress"></div>
+  </header>
+
+  <div class="main" id="main">
+    <aside class="sidebar" id="sidebar" hidden>
+      <div class="thumbs" id="thumbs" role="listbox" aria-label="Foto's"></div>
+      <div class="side-foot">
+        <button class="tb-btn" id="addBtn" title="Foto's toevoegen" aria-label="Foto's toevoegen"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+        <span class="spacer"></span>
+        <button class="tb-btn" id="delBtn" title="Haal foto uit de lijst (Delete)" aria-label="Haal foto uit de lijst"><svg class="i" viewBox="0 0 24 24"><path d="M4.5 7h15M10 11v6M14 11v6M6.5 7l.8 12a1.5 1.5 0 0 0 1.5 1.4h6.4a1.5 1.5 0 0 0 1.5-1.4l.8-12M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+      </div>
+    </aside>
+    <div class="scrim" id="scrim" hidden></div>
+    <main class="viewer" id="viewer">
+      <div class="empty" id="empty">
+        <div class="empty-inner">
+          <div class="empty-icon" aria-hidden="true"><svg width="76" height="76" viewBox="0 0 64 64"><defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5AC8FA"/><stop offset="1" stop-color="#007AFF"/></linearGradient></defs><rect x="4" y="8" width="56" height="48" rx="10" fill="url(#g1)"/><circle cx="21" cy="24" r="5.5" fill="#FFD60A"/><path d="M4 46l15-14 11 10 9-8 21 18v0a10 10 0 0 1-10 10H14A10 10 0 0 1 4 52z" fill="#fff" fill-opacity=".92"/></svg></div>
+          <h1>Open je inspectiefoto's</h1>
+          <p>Bekijk ze één voor één, geef ze een naam en bewaar ze in één keer met nummer en omschrijving. Je kunt de foto's ook hierheen slepen.</p>
+          <button class="pill" id="emptyOpen">Kies foto's…</button>
+          <div class="keys">Typ een naam, druk op <kbd>Tab</kbd> of <kbd>Enter</kbd> en je bent bij de volgende.<br><kbd>Shift</kbd> <kbd>Tab</kbd> terug, <kbd>↑</kbd> <kbd>↓</kbd> kies een eerdere naam.<br><span id="privacyNote">Je foto's blijven op dit apparaat.</span></div>
+        </div>
+      </div>
+      <div class="stage" id="stage" hidden>
+        <img id="photo" alt="">
+        <div class="bad" id="bad" hidden><b>Geen voorbeeld</b><span id="badTxt">Deze browser kan dit bestand niet tonen. Je kunt het wel een naam geven.</span></div>
+      </div>
+      <div class="gallery" id="gallery" role="list" aria-label="Overzicht" hidden></div>
+      <div class="namebar" id="namebar" hidden>
+        <div class="nb-num" id="nbNum" title="Nummer in de bestandsnaam">01</div>
+        <div class="nb-field">
+          <div class="suggest" id="suggest" role="listbox" hidden></div>
+          <input class="nb-input" id="nbIn" type="text" placeholder="Wat is dit?" autocomplete="off" autocapitalize="sentences" spellcheck="true" enterkeyhint="next" aria-label="Naam van deze foto">
+          <div class="nb-meta"><span class="nb-file" id="nbFile"></span><button class="nb-chip" id="nbChip" tabindex="-1" title="Neem deze suggestie over" hidden><svg class="i" viewBox="0 0 24 24"><path d="M11 3.5l1.7 4.8 4.8 1.7-4.8 1.7L11 16.5l-1.7-4.8L4.5 10l4.8-1.7z"/></svg><span id="nbChipTxt"></span></button></div>
+        </div>
+        <button class="nb-btn ai" id="nbAi" tabindex="-1" title="Laat Claude deze foto bekijken" aria-label="Herken deze foto" hidden><svg class="i" viewBox="0 0 24 24"><path d="M11 3.5l1.7 4.8 4.8 1.7-4.8 1.7L11 16.5l-1.7-4.8L4.5 10l4.8-1.7z"/><path d="M18 14.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg></button>
+        <button class="pill nb-next" id="nbNext" tabindex="-1" title="Bewaar naam en ga naar de volgende (Enter of Tab)"><span>Volgende</span><svg class="i" viewBox="0 0 24 24"><path d="M19 5v7a3 3 0 0 1-3 3H6"/><path d="m9.5 11.5-3.5 3.5 3.5 3.5"/></svg></button>
+      </div>
+    </main>
+    <div class="toast" id="toast" role="status" aria-live="polite"><span id="toastTxt"></span><button id="toastBtn" hidden></button></div>
+    <div class="hud" id="hud" hidden><span class="spin"></span><span id="hudTxt"></span></div>
+  </div>
+</div>
+
+<div class="pop" id="settingsPop" hidden role="dialog" aria-label="Instellingen">
+  <h2>Bestandsnaam</h2>
+  <label class="field"><span>Project of adres, komt vooraan</span><input type="text" id="setPrefix" placeholder="bijv. Keizersgracht 12" autocomplete="off"></label>
+  <div class="switch-row"><span>Foto's nummeren</span><label class="switch"><input type="checkbox" id="setNumber" aria-label="Foto's nummeren"><i></i></label></div>
+  <div class="example" id="setExample"></div>
+  <div id="ctxWrap" hidden>
+    <h2 style="margin-top:16px">Herkennen</h2>
+    <label class="field" style="margin-bottom:0"><span>Waar gaat de inspectie over?</span><input type="text" id="setContext" placeholder="bijv. opleveringskeuring woning, dakinspectie" autocomplete="off"><small>Helpt Claude om betere namen voor te stellen.</small></label>
+  </div>
+</div>
+
+<div class="menu" id="menu" hidden role="menu">
+  <button data-act="sort-name" role="menuitem">Sorteer op bestandsnaam</button>
+  <button data-act="sort-time" role="menuitem">Sorteer op datum</button>
+  <hr>
+  <button data-act="csv" role="menuitem">Bewaar lijst als CSV</button>
+  <hr>
+  <button data-act="clear" class="danger" role="menuitem">Sluit alle foto's</button>
+</div>
+
+<input type="file" id="fileIn" accept="image/*,.heic,.heif" multiple hidden>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+const coll = new Intl.Collator('nl', { numeric: true, sensitivity: 'base' });
+
+const settings = Object.assign({ prefix: '', number: true, context: '' }, store.get('fotonamen.settings', {}));
+let history = store.get('fotonamen.history', {});
+if (!history || typeof history !== 'object' || Array.isArray(history)) history = {};
+
+const S = { photos: [], cur: -1, view: 'single', sidebar: innerWidth > 640, rev: 0, savedRev: 0, dirty: false, uid: 0, undo: null, ai: null, zoomed: false };
+const finePointer = matchMedia('(pointer:fine)').matches;
+const narrow = () => innerWidth <= 640;
+
+// elements
+const E = {};
+['sidebarBtn','viewSeg','docTitle','docSub','prevBtn','nextBtn','counter','aiAllBtn','aiAllTxt','settingsBtn','menuBtn','openBtn','saveBtn','progress',
+ 'main','sidebar','thumbs','addBtn','delBtn','scrim','viewer','empty','emptyOpen','privacyNote','stage','photo','bad','badTxt','gallery','namebar',
+ 'nbNum','suggest','nbIn','nbFile','nbChip','nbChipTxt','nbAi','nbNext','toast','toastTxt','toastBtn','hud','hudTxt',
+ 'settingsPop','setPrefix','setNumber','setExample','ctxWrap','setContext','menu','fileIn'].forEach(id => E[id] = document.getElementById(id));
+
+/* ---------- helpers ---------- */
+const extOf = n => { const m = /\.([a-z0-9]{2,5})$/i.exec(n); return m ? m[1].toLowerCase() : 'jpg'; };
+const baseOf = n => n.replace(/\.[a-z0-9]{2,5}$/i, '');
+const clean = s => String(s || '').replace(/[\\/:*?"<>|\u0000-\u001f]+/g, ' ').replace(/\s+/g, ' ').trim().replace(/[. ]+$/, '').slice(0, 120);
+const width = () => Math.max(2, String(S.photos.length).length);
+const numStr = i => String(i + 1).padStart(width(), '0');
+const current = () => S.photos[S.cur];
+const plural = (n, one, many) => n === 1 ? one : many;
+
+function fileNameFor(p, i, labelOverride) {
+  const label = clean(labelOverride != null ? labelOverride : (p.name || p.ai)) || clean(baseOf(p.file.name)) || 'foto';
+  const parts = [];
+  const pre = clean(settings.prefix);
+  if (pre) parts.push(pre);
+  if (settings.number) parts.push(numStr(i));
+  parts.push(label);
+  return parts.join(' - ') + '.' + p.ext;
+}
+function exportList() {
+  const seen = new Map();
+  return S.photos.map((p, i) => {
+    let name = fileNameFor(p, i);
+    const key = name.toLowerCase();
+    if (seen.has(key)) {
+      let k = seen.get(key) + 1; seen.set(key, k);
+      name = name.replace(/(\.[a-z0-9]+)$/i, ` (${k})$1`);
+    } else seen.set(key, 1);
+    return { p, i, name };
+  });
+}
+
+function loadImg(url) {
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.decoding = 'async';
+    img.onload = () => res(img);
+    img.onerror = () => rej(new Error('decode'));
+    img.src = url;
+  });
+}
+async function scaled(p, max, type, q) {
+  const img = await loadImg(p.url);
+  const w = img.naturalWidth, h = img.naturalHeight;
+  p.w = w; p.h = h;
+  const s = Math.min(1, max / Math.max(w, h));
+  const c = document.createElement('canvas');
+  c.width = Math.max(1, Math.round(w * s)); c.height = Math.max(1, Math.round(h * s));
+  c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+  return c;
+}
+
+/* ---------- toast & hud ---------- */
+let toastTimer;
+function toast(msg, action) {
+  E.toastTxt.textContent = msg;
+  E.toastBtn.hidden = !action;
+  E.toast.classList.toggle('plain', !action);
+  if (action) { E.toastBtn.textContent = action.label; E.toastBtn.onclick = () => { hideToast(); action.fn(); }; }
+  E.toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(hideToast, action ? 6000 : 3200);
+}
+function hideToast() { E.toast.classList.remove('show'); }
+function hud(msg) { E.hud.hidden = !msg; if (msg) E.hudTxt.textContent = msg; }
+
+/* ---------- adding photos ---------- */
+const IMG_EXT = /\.(jpe?g|png|gif|webp|heic|heif|bmp|tiff?|avif)$/i;
+function addFiles(list) {
+  const files = [...list].filter(f => (f.type && f.type.startsWith('image/')) || IMG_EXT.test(f.name));
+  if (!files.length) { if (list.length) toast('Dat zijn geen foto’s.'); return; }
+  files.sort((a, b) => coll.compare(a.name, b.name));
+  const firstNew = S.photos.length;
+  for (const file of files) {
+    const p = { id: ++S.uid, file, url: URL.createObjectURL(file), ext: extOf(file.name), name: '', ai: '', aiState: '', thumb: '', bad: false, aiBlob: null };
+    buildNodes(p);
+    S.photos.push(p);
+  }
+  reorder();
+  S.rev++;
+  if (S.cur < 0) { S.cur = firstNew; showPhoto(); loadInput(); focusInput(); }
+  updateAll();
+  if (S.photos.length > files.length) toast(`${files.length} ${plural(files.length, 'foto', 'foto’s')} toegevoegd`);
+  queueThumbs();
+}
+
+let thumbBusy = false;
+async function queueThumbs() {
+  if (thumbBusy) return;
+  thumbBusy = true;
+  try {
+    for (;;) {
+      // current photo first, then in order
+      const cur = current();
+      const p = (cur && !cur.thumb && !cur.bad) ? cur : S.photos.find(x => !x.thumb && !x.bad);
+      if (!p) break;
+      try {
+        const c = await scaled(p, 360);
+        p.thumb = c.toDataURL('image/jpeg', 0.82);
+      } catch (e) { p.bad = true; if (p === current()) showPhoto(); }
+      paintThumb(p);
+    }
+  } finally { thumbBusy = false; }
+}
+
+function buildNodes(p) {
+  // sidebar
+  const t = el('div', 'thumb'); t.setAttribute('role', 'option');
+  const box = el('div', 'tbox'); box.append(el('div', 'tph'));
+  const meta = el('div', 'tmeta');
+  const num = el('span', 'tnum'), dot = el('span', 'sdot'), nm = el('span', 'tname');
+  meta.append(num, dot, nm); t.append(box, meta);
+  t.addEventListener('click', () => {
+    go(S.photos.indexOf(p));
+    if (narrow()) setSidebar(false);
+    focusInput();
+  });
+  p.side = { root: t, box, num, nm };
+
+  // gallery tile
+  const g = el('div', 'tile'); g.setAttribute('role', 'listitem');
+  const gb = el('button', 'tile-img'); gb.type = 'button'; gb.tabIndex = -1; gb.title = 'Open groot'; gb.append(el('div', 'tph'));
+  const row = el('div', 'tile-row');
+  const gnum = el('span', 'tnum'), gdot = el('span', 'sdot');
+  const gin = el('input', 'tile-in'); gin.type = 'text'; gin.autocomplete = 'off'; gin.spellcheck = true;
+  gin.setAttribute('enterkeyhint', 'next'); gin.setAttribute('aria-label', 'Naam van foto'); gin.setAttribute('autocapitalize', 'sentences');
+  row.append(gnum, gdot, gin); g.append(gb, row);
+  gb.addEventListener('click', () => { go(S.photos.indexOf(p)); setView('single'); focusInput(); });
+  gin.addEventListener('focus', () => { const i = S.photos.indexOf(p); if (i !== S.cur) { const prev = current(); S.cur = i; if (prev) updateItem(prev); updateItem(p); updateChrome(); } });
+  gin.addEventListener('keydown', e => {
+    if (e.isComposing) return;
+    if (e.key === 'Enter' || e.key === 'Tab') {
+      if (!gin.value.trim() && p.ai) gin.value = p.ai;
+      setName(p, gin.value);
+      const i = S.photos.indexOf(p);
+      const n = S.photos[i + (e.shiftKey ? -1 : 1)];
+      if (n) { e.preventDefault(); n.grid.input.focus(); n.grid.input.select(); n.grid.root.scrollIntoView({ block: 'nearest' }); }
+      else if (e.key === 'Enter' || !e.shiftKey) { e.preventDefault(); if (!e.shiftKey) { gin.blur(); finishedToast(); } }
+    } else if (e.key === 'Escape') { gin.value = p.name; gin.blur(); }
+  });
+  gin.addEventListener('change', () => setName(p, gin.value));
+  p.grid = { root: g, box: gb, num: gnum, input: gin };
+}
+
+function paintThumb(p) {
+  for (const box of [p.side.box, p.grid.box]) {
+    box.querySelectorAll('img,.tph').forEach(n => n.remove());
+    if (p.thumb) { const img = el('img'); img.src = p.thumb; img.alt = ''; img.draggable = false; box.prepend(img); }
+    else { const ph = el('div', 'tph', p.bad ? p.ext.toUpperCase() : ''); box.prepend(ph); }
+  }
+}
+
+function reorder() {
+  E.thumbs.replaceChildren(...S.photos.map(p => p.side.root));
+  E.gallery.replaceChildren(...S.photos.map(p => p.grid.root));
+}
+
+/* ---------- rendering ---------- */
+function updateItem(p) {
+  const i = S.photos.indexOf(p);
+  if (i < 0) return;
+  const n = numStr(i);
+  for (const v of [p.side, p.grid]) {
+    v.num.textContent = n;
+    v.root.classList.toggle('is-named', !!p.name);
+    v.root.classList.toggle('is-ai', !p.name && !!p.ai);
+    v.root.classList.toggle('is-busy', p.aiState === 'busy');
+    v.root.classList.toggle('is-current', i === S.cur);
+  }
+  p.side.root.setAttribute('aria-selected', i === S.cur ? 'true' : 'false');
+  p.side.nm.textContent = p.name || p.ai || 'Nog geen naam';
+  p.side.nm.classList.toggle('is-blank', !p.name && !p.ai);
+  p.side.root.title = p.file.name;
+  if (document.activeElement !== p.grid.input) p.grid.input.value = p.name;
+  p.grid.input.placeholder = p.ai || 'Naam…';
+}
+function updateAll() { S.photos.forEach(updateItem); updateChrome(); updateNamebar(); }
+
+function updateChrome() {
+  const n = S.photos.length, has = n > 0;
+  E.empty.hidden = has;
+  E.docTitle.textContent = clean(settings.prefix) || 'Inspectiefoto’s';
+  const named = S.photos.filter(p => p.name).length;
+  const sug = S.photos.filter(p => !p.name && p.ai).length;
+  E.docSub.textContent = has ? `${named} van ${n} benoemd` + (sug ? `, ${sug} ${plural(sug, 'suggestie', 'suggesties')}` : '') : '';
+  E.progress.style.width = has ? (named / n * 100) + '%' : '0';
+  E.counter.textContent = has ? `${S.cur + 1} / ${n}` : '0 / 0';
+  E.prevBtn.disabled = !has || S.cur <= 0;
+  E.nextBtn.disabled = !has || S.cur >= n - 1;
+  E.saveBtn.disabled = !has;
+  E.menuBtn.disabled = !has;
+  E.viewSeg.querySelectorAll('button').forEach(b => { b.disabled = !has; b.setAttribute('aria-pressed', String(b.dataset.view === S.view)); });
+  E.sidebarBtn.disabled = !has || S.view !== 'single';
+  E.sidebarBtn.setAttribute('aria-pressed', String(S.sidebar));
+  E.delBtn.disabled = !has;
+  const single = has && S.view === 'single';
+  E.stage.hidden = !single;
+  E.namebar.hidden = !single;
+  E.gallery.hidden = !(has && S.view === 'grid');
+  E.sidebar.hidden = !(single && S.sidebar);
+  E.scrim.hidden = !(single && S.sidebar && narrow());
+  updateAiBtn();
+}
+
+function updateAiBtn() {
+  const on = !!sample;
+  E.aiAllBtn.hidden = !on;
+  E.nbAi.hidden = !on;
+  E.ctxWrap.hidden = !on;
+  E.privacyNote.textContent = on ? 'Je foto’s blijven op dit apparaat, behalve als je ze laat herkennen.' : 'Je foto’s blijven op dit apparaat.';
+  if (!on) return;
+  E.aiAllBtn.disabled = !S.photos.length;
+  E.aiAllBtn.classList.toggle('running', !!S.ai);
+  const svg = E.aiAllBtn.querySelector('svg'), spin = E.aiAllBtn.querySelector('.spin');
+  if (S.ai) {
+    if (svg) svg.hidden = true;
+    if (!spin) E.aiAllBtn.prepend(el('span', 'spin'));
+    E.aiAllTxt.textContent = `Herkennen ${S.ai.done}/${S.ai.total}`;
+    E.aiAllBtn.title = 'Stop met herkennen';
+  } else {
+    if (svg) svg.hidden = false;
+    if (spin) spin.remove();
+    E.aiAllTxt.textContent = 'Herken alles';
+    E.aiAllBtn.title = 'Laat Claude alle foto’s zonder naam bekijken en een naam voorstellen';
+  }
+  const p = current();
+  const busy = p && p.aiState === 'busy';
+  E.nbAi.disabled = !p || p.bad || busy;
+  E.nbAi.replaceChildren();
+  if (busy) E.nbAi.append(el('span', 'spin'));
+  else E.nbAi.innerHTML = '<svg class="i" viewBox="0 0 24 24"><path d="M11 3.5l1.7 4.8 4.8 1.7-4.8 1.7L11 16.5l-1.7-4.8L4.5 10l4.8-1.7z"/><path d="M18 14.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg>';
+}
+
+function updateNamebar() {
+  const p = current();
+  if (!p) return;
+  E.nbNum.textContent = numStr(S.cur);
+  E.nbNum.classList.toggle('named', !!p.name);
+  const typed = E.nbIn.value.trim();
+  E.nbFile.textContent = fileNameFor(p, S.cur, typed || null);
+  E.nbFile.title = 'Origineel: ' + p.file.name;
+  const showChip = !!p.ai && typed !== p.ai;
+  E.nbChip.hidden = !showChip;
+  if (showChip) E.nbChipTxt.textContent = p.ai;
+}
+
+/* ---------- navigation & naming ---------- */
+function showPhoto() {
+  unzoom();
+  const p = current();
+  if (!p) { E.photo.removeAttribute('src'); return; }
+  if (p.bad) {
+    E.photo.hidden = true; E.bad.hidden = false;
+    E.badTxt.textContent = `Deze browser kan ${p.ext.toUpperCase()}-bestanden niet tonen. Je kunt de foto wel een naam geven.`;
+  } else {
+    E.bad.hidden = true; E.photo.hidden = false;
+    if (E.photo.getAttribute('src') !== p.url) E.photo.src = p.url;
+    E.photo.alt = p.name || ('Foto ' + numStr(S.cur));
+    const nx = S.photos[S.cur + 1];
+    if (nx && !nx.bad) { const pre = new Image(); pre.src = nx.url; }
+  }
+}
+E.photo.addEventListener('error', () => { const p = current(); if (p && !p.bad && E.photo.src) { p.bad = true; paintThumb(p); showPhoto(); } });
+
+function go(i) {
+  if (i < 0 || i >= S.photos.length) return;
+  commit(false);
+  const prev = current();
+  S.cur = i;
+  if (prev) updateItem(prev);
+  updateItem(current());
+  showPhoto();
+  loadInput();
+  updateChrome();
+  current().side.root.scrollIntoView({ block: 'nearest' });
+}
+
+function loadInput() {
+  const p = current();
+  closeSuggest();
+  S.dirty = false;
+  if (!p) { E.nbIn.value = ''; return; }
+  E.nbIn.value = p.name || p.ai || '';
+  E.nbIn.classList.toggle('is-ai', !p.name && !!p.ai);
+  if (document.activeElement === E.nbIn) selectIfAi();
+  updateNamebar();
+  updateAiBtn();
+}
+function selectIfAi() { if (E.nbIn.classList.contains('is-ai')) E.nbIn.select(); }
+function focusInput() {
+  if (S.view !== 'single' || !current()) return;
+  if (!finePointer && document.activeElement !== E.nbIn) return; // geen toetsenbord laten opspringen op telefoon
+  setTimeout(() => { E.nbIn.focus({ preventScroll: true }); selectIfAi(); }, 0);
+}
+
+function setName(p, v) {
+  v = String(v || '').replace(/\s+/g, ' ').trim();
+  if (v === p.name) return;
+  p.name = v;
+  if (v) remember(v);
+  S.rev++;
+  updateItem(p);
+  updateChrome();
+  if (p === current()) updateNamebar();
+}
+function commit(force) {
+  const p = current();
+  if (!p) return;
+  if (S.dirty || force) { setName(p, E.nbIn.value); E.nbIn.classList.remove('is-ai'); }
+  S.dirty = false;
+}
+function remember(v) {
+  history[v] = (history[v] || 0) + 1;
+  const keys = Object.keys(history);
+  if (keys.length > 400) { keys.sort((a, b) => history[a] - history[b]).slice(0, keys.length - 400).forEach(k => delete history[k]); }
+  store.set('fotonamen.history', history);
+}
+function firstUnnamed() { return S.photos.findIndex(p => !p.name); }
+function finishedToast() {
+  const left = S.photos.filter(p => !p.name).length;
+  if (left) toast(`Laatste foto. Nog ${left} zonder naam.`, { label: 'Ga erheen', fn: () => { if (S.view === 'grid') { const p = S.photos[firstUnnamed()]; p.grid.input.focus(); p.grid.root.scrollIntoView({ block: 'nearest' }); } else { go(firstUnnamed()); focusInput(); } } });
+  else toast('Alle foto’s hebben een naam. Klaar om te bewaren.', { label: 'Bewaar', fn: save });
+}
+function advance() {
+  if (S.cur < S.photos.length - 1) go(S.cur + 1);
+  else { loadInput(); finishedToast(); }
+}
+function applyText(t) {
+  E.nbIn.value = t;
+  S.dirty = true;
+  E.nbIn.classList.remove('is-ai');
+  closeSuggest();
+  updateNamebar();
+  E.nbIn.focus({ preventScroll: true });
+  const l = t.length; try { E.nbIn.setSelectionRange(l, l); } catch (e) {}
+}
+
+/* ---------- suggestions ---------- */
+let sugg = [], sugIdx = -1;
+function suggestions(q) {
+  q = q.trim().toLowerCase();
+  if (!q) return [];
+  const pool = new Map();
+  for (const [n, c] of Object.entries(history)) pool.set(n, c);
+  for (const p of S.photos) if (p.name) pool.set(p.name, (pool.get(p.name) || 0) + 2);
+  return [...pool]
+    .filter(([n]) => { const l = n.toLowerCase(); return l !== q && l.includes(q); })
+    .sort((a, b) => {
+      const as = a[0].toLowerCase().startsWith(q), bs = b[0].toLowerCase().startsWith(q);
+      return (bs - as) || (b[1] - a[1]) || coll.compare(a[0], b[0]);
+    })
+    .slice(0, 6).map(x => x[0]);
+}
+function renderSuggest() {
+  const q = E.nbIn.value.trim();
+  sugg = suggestions(q); sugIdx = -1;
+  if (!sugg.length) { closeSuggest(); return; }
+  const ql = q.toLowerCase();
+  E.suggest.replaceChildren(...sugg.map((s, k) => {
+    const row = el('div', 'sg'); row.setAttribute('role', 'option');
+    const label = el('span');
+    const at = s.toLowerCase().indexOf(ql);
+    if (at >= 0) { label.append(s.slice(0, at)); label.append(el('b', null, s.slice(at, at + q.length))); label.append(s.slice(at + q.length)); }
+    else label.textContent = s;
+    row.append(label);
+    row.addEventListener('pointerdown', e => e.preventDefault());
+    row.addEventListener('click', () => applySug(k));
+    return row;
+  }));
+  E.suggest.hidden = false;
+}
+function moveSug(d) {
+  sugIdx += d;
+  if (sugIdx >= sugg.length) sugIdx = -1;
+  else if (sugIdx < -1) sugIdx = sugg.length - 1;
+  [...E.suggest.children].forEach((c, k) => c.classList.toggle('on', k === sugIdx));
+}
+function applySug(k) { const s = sugg[k]; if (s != null) applyText(s); }
+function closeSuggest() { E.suggest.hidden = true; sugg = []; sugIdx = -1; }
+
+E.nbIn.addEventListener('input', () => {
+  S.dirty = true;
+  E.nbIn.classList.remove('is-ai');
+  renderSuggest();
+  updateNamebar();
+});
+E.nbIn.addEventListener('focus', selectIfAi);
+E.nbIn.addEventListener('blur', () => setTimeout(closeSuggest, 120));
+E.nbIn.addEventListener('keydown', e => {
+  if (e.isComposing || e.keyCode === 229) return;
+  const open = !E.suggest.hidden && sugg.length > 0;
+  const p = current();
+  if (e.key === 'ArrowDown') { e.preventDefault(); if (open) moveSug(1); else go(S.cur + 1); }
+  else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (open) { if (sugIdx === -1) closeSuggest(); else moveSug(-1); }
+    else go(S.cur - 1);
+  }
+  else if (e.key === 'Enter' || e.key === 'Tab') {
+    e.preventDefault();
+    if (open && sugIdx >= 0) { applySug(sugIdx); return; }
+    commit(true);
+    if (e.shiftKey) go(S.cur - 1); else advance();
+  }
+  else if (e.key === 'Escape') {
+    if (open) { e.preventDefault(); closeSuggest(); }
+    else if (S.zoomed) unzoom();
+    else E.nbIn.blur();
+  }
+  else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); save(); }
+});
+E.nbChip.addEventListener('pointerdown', e => e.preventDefault());
+E.nbChip.addEventListener('click', () => { const p = current(); if (p && p.ai) applyText(p.ai); });
+E.nbNext.addEventListener('pointerdown', e => { if (document.activeElement === E.nbIn) e.preventDefault(); });
+E.nbNext.addEventListener('click', () => { commit(true); advance(); });
+
+/* ---------- delete / undo / clear ---------- */
+function removeCurrent() {
+  const p = current();
+  if (!p) return;
+  const i = S.cur;
+  S.photos.splice(i, 1);
+  p.side.root.remove(); p.grid.root.remove();
+  S.undo = { kind: 'one', p, i };
+  S.rev++;
+  S.cur = S.photos.length ? Math.min(i, S.photos.length - 1) : -1;
+  showPhoto(); loadInput(); updateAll();
+  toast('Foto uit de lijst gehaald', { label: 'Ongedaan maken', fn: undo });
+}
+function clearAll() {
+  if (!S.photos.length) return;
+  if (S.ai) S.ai.ctl.abort();
+  S.undo = { kind: 'all', photos: S.photos.slice(), cur: S.cur, rev: S.rev, savedRev: S.savedRev };
+  S.photos = []; S.cur = -1; S.rev = 0; S.savedRev = 0;
+  reorder(); showPhoto(); loadInput(); updateAll();
+  toast('Alle foto’s gesloten', { label: 'Ongedaan maken', fn: undo });
+}
+function undo() {
+  const u = S.undo;
+  if (!u) return;
+  S.undo = null;
+  if (u.kind === 'one') { S.photos.splice(Math.min(u.i, S.photos.length), 0, u.p); S.cur = S.photos.indexOf(u.p); }
+  else { S.photos = u.photos.concat(S.photos); S.cur = Math.max(0, u.cur); S.rev = u.rev; S.savedRev = u.savedRev; }
+  reorder(); showPhoto(); loadInput(); updateAll();
+}
+E.delBtn.addEventListener('click', removeCurrent);
+
+/* ---------- sort ---------- */
+function sortBy(kind) {
+  commit(false);
+  const curP = current();
+  if (kind === 'name') S.photos.sort((a, b) => coll.compare(a.file.name, b.file.name));
+  else S.photos.sort((a, b) => (a.file.lastModified - b.file.lastModified) || coll.compare(a.file.name, b.file.name));
+  reorder();
+  S.cur = S.photos.indexOf(curP);
+  S.rev++;
+  updateAll();
+  toast(kind === 'name' ? 'Gesorteerd op bestandsnaam' : 'Gesorteerd op datum');
+}
+
+/* ---------- views & sidebar ---------- */
+function setView(v) {
+  if (v === S.view) return;
+  if (v === 'grid') { commit(false); closeSuggest(); unzoom(); }
+  S.view = v;
+  updateAll();
+  if (v === 'single') { showPhoto(); loadInput(); }
+  else { const p = current(); if (p) requestAnimationFrame(() => p.grid.root.scrollIntoView({ block: 'nearest' })); }
+}
+E.viewSeg.addEventListener('click', e => { const b = e.target.closest('button[data-view]'); if (b && !b.disabled) setView(b.dataset.view); });
+function setSidebar(on) { S.sidebar = on; updateChrome(); if (on && current()) current().side.root.scrollIntoView({ block: 'nearest' }); }
+E.sidebarBtn.addEventListener('click', () => setSidebar(!S.sidebar));
+E.scrim.addEventListener('click', () => setSidebar(false));
+E.prevBtn.addEventListener('click', () => { go(S.cur - 1); focusInput(); });
+E.nextBtn.addEventListener('click', () => { go(S.cur + 1); focusInput(); });
+let lastNarrow = narrow();
+addEventListener('resize', () => { const n = narrow(); if (n !== lastNarrow) { lastNarrow = n; S.sidebar = !n; updateChrome(); } });
+
+/* ---------- zoom, pan, swipe ---------- */
+function unzoom() {
+  if (!S.zoomed) return;
+  S.zoomed = false;
+  E.stage.classList.remove('zoomed', 'panning');
+  E.photo.style.width = '';
+}
+function zoomAt(cx, cy) {
+  const r = E.photo.getBoundingClientRect();
+  if (!r.width) return;
+  const rx = (cx - r.left) / r.width, ry = (cy - r.top) / r.height;
+  const zw = Math.round(Math.max(r.width * 2, Math.min(E.photo.naturalWidth || r.width * 2, r.width * 3.5)));
+  S.zoomed = true;
+  E.stage.classList.add('zoomed');
+  E.photo.style.width = zw + 'px';
+  requestAnimationFrame(() => {
+    E.stage.scrollLeft = rx * E.photo.offsetWidth - E.stage.clientWidth / 2;
+    E.stage.scrollTop = ry * E.photo.offsetHeight - E.stage.clientHeight / 2;
+  });
+}
+let ptr = null;
+E.photo.addEventListener('pointerdown', e => {
+  if (e.button > 0) return;
+  ptr = { x: e.clientX, y: e.clientY, sl: E.stage.scrollLeft, st: E.stage.scrollTop, moved: false, type: e.pointerType };
+  if (e.pointerType === 'mouse') { e.preventDefault(); if (S.zoomed) { E.photo.setPointerCapture(e.pointerId); } }
+});
+E.photo.addEventListener('pointermove', e => {
+  if (!ptr) return;
+  const dx = e.clientX - ptr.x, dy = e.clientY - ptr.y;
+  if (Math.abs(dx) + Math.abs(dy) > 6) ptr.moved = true;
+  if (S.zoomed && ptr.type === 'mouse' && ptr.moved) {
+    E.stage.classList.add('panning');
+    E.stage.scrollLeft = ptr.sl - dx; E.stage.scrollTop = ptr.st - dy;
+  }
+});
+E.photo.addEventListener('pointerup', e => {
+  if (!ptr) return;
+  const p0 = ptr; ptr = null;
+  E.stage.classList.remove('panning');
+  const dx = e.clientX - p0.x, dy = e.clientY - p0.y;
+  if (!p0.moved) { if (S.zoomed) unzoom(); else zoomAt(e.clientX, e.clientY); return; }
+  if (!S.zoomed && p0.type !== 'mouse' && Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.4) go(S.cur + (dx < 0 ? 1 : -1));
+});
+E.photo.addEventListener('pointercancel', () => { ptr = null; E.stage.classList.remove('panning'); });
+E.stage.addEventListener('click', e => { if (e.target === E.stage && S.zoomed) unzoom(); });
+
+/* ---------- files in ---------- */
+const openPicker = () => { E.fileIn.value = ''; E.fileIn.click(); };
+E.fileIn.addEventListener('change', () => { if (E.fileIn.files.length) addFiles(E.fileIn.files); });
+E.openBtn.addEventListener('click', openPicker);
+E.emptyOpen.addEventListener('click', openPicker);
+E.addBtn.addEventListener('click', openPicker);
+let dragDepth = 0;
+const hasFiles = e => e.dataTransfer && [...e.dataTransfer.types].includes('Files');
+addEventListener('dragenter', e => { if (!hasFiles(e)) return; e.preventDefault(); dragDepth++; E.viewer.classList.add('dropping'); });
+addEventListener('dragover', e => { if (!hasFiles(e)) return; e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; });
+addEventListener('dragleave', e => { if (!hasFiles(e)) return; dragDepth = Math.max(0, dragDepth - 1); if (!dragDepth) E.viewer.classList.remove('dropping'); });
+addEventListener('drop', e => { if (!hasFiles(e)) return; e.preventDefault(); dragDepth = 0; E.viewer.classList.remove('dropping'); addFiles(e.dataTransfer.files); });
+
+/* ---------- popovers ---------- */
+let openPopEl = null, openPopBtn = null;
+function openPop(pop, btn) {
+  if (openPopEl === pop) { closePop(); return; }
+  closePop();
+  pop.hidden = false;
+  const r = btn.getBoundingClientRect();
+  const w = pop.offsetWidth;
+  pop.style.top = (r.bottom + 8) + 'px';
+  pop.style.left = Math.max(8, Math.min(innerWidth - w - 8, r.right - w)) + 'px';
+  openPopEl = pop; openPopBtn = btn;
+  btn.setAttribute('aria-expanded', 'true');
+}
+function closePop() {
+  if (!openPopEl) return;
+  openPopEl.hidden = true;
+  openPopBtn.setAttribute('aria-expanded', 'false');
+  openPopEl = openPopBtn = null;
+}
+addEventListener('pointerdown', e => { if (openPopEl && !openPopEl.contains(e.target) && !openPopBtn.contains(e.target)) closePop(); }, true);
+
+E.settingsBtn.addEventListener('click', () => {
+  E.setPrefix.value = settings.prefix; E.setNumber.checked = settings.number; E.setContext.value = settings.context;
+  renderExample(); openPop(E.settingsPop, E.settingsBtn);
+  if (finePointer) setTimeout(() => E.setPrefix.focus(), 0);
+});
+function saveSettings() {
+  settings.prefix = E.setPrefix.value.slice(0, 80);
+  settings.number = E.setNumber.checked;
+  settings.context = E.setContext.value.slice(0, 300);
+  store.set('fotonamen.settings', settings);
+  renderExample(); updateChrome(); updateNamebar();
+}
+function renderExample() {
+  const p = current() || { name: '', ai: '', ext: 'jpg', file: { name: 'IMG_0001.jpg' } };
+  const label = (p.name || p.ai) || 'Scheur in gevelmetselwerk';
+  const i = S.cur >= 0 ? S.cur : 0;
+  E.setExample.replaceChildren('Voorbeeld: ', el('b', null, fileNameFor(Object.assign({}, p, { name: label }), i, label)));
+}
+[E.setPrefix, E.setContext].forEach(i => i.addEventListener('input', saveSettings));
+E.setNumber.addEventListener('change', saveSettings);
+E.settingsPop.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); closePop(); focusInput(); } });
+
+E.menuBtn.addEventListener('click', () => openPop(E.menu, E.menuBtn));
+E.menu.addEventListener('click', e => {
+  const b = e.target.closest('button[data-act]');
+  if (!b) return;
+  closePop();
+  const a = b.dataset.act;
+  if (a === 'sort-name') sortBy('name');
+  else if (a === 'sort-time') sortBy('time');
+  else if (a === 'csv') saveCsv();
+  else if (a === 'clear') clearAll();
+});
+
+/* ---------- global keys ---------- */
+addEventListener('keydown', e => {
+  const t = e.target;
+  const typing = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA');
+  const mod = e.ctrlKey || e.metaKey;
+  if (mod && e.key.toLowerCase() === 'o') { e.preventDefault(); openPicker(); return; }
+  if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); save(); return; }
+  if (e.key === 'Escape' && openPopEl) { closePop(); return; }
+  if (typing) return;
+  if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); undo(); return; }
+  if (!S.photos.length) return;
+  if (S.view === 'single') {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); go(S.cur + 1); }
+    else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go(S.cur - 1); }
+    else if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); removeCurrent(); }
+    else if (e.key === 'Enter') { e.preventDefault(); E.nbIn.focus(); selectIfAi(); }
+    else if (e.key === 'Escape' && S.zoomed) unzoom();
+    else if (e.key.length === 1 && !mod && !e.altKey) { E.nbIn.focus(); /* eerste letter komt gewoon in het veld */ }
+  }
+});
+
+/* ---------- zip ---------- */
+const CRC_T = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function crc32(u8) { let c = 0xFFFFFFFF; for (let i = 0; i < u8.length; i++) c = CRC_T[(c ^ u8[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+function dos(ms) {
+  const d = new Date(ms || Date.now());
+  const y = Math.max(1980, d.getFullYear());
+  return { time: (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1), date: ((y - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate() };
+}
+async function makeZip(entries, onProgress) {
+  const enc = new TextEncoder();
+  const parts = [], central = [];
+  let offset = 0;
+  for (let k = 0; k < entries.length; k++) {
+    const { name, file } = entries[k];
+    const data = new Uint8Array(await file.arrayBuffer());
+    const crc = crc32(data), size = data.length;
+    const nb = enc.encode(name);
+    const { time, date } = dos(file.lastModified);
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(8, 0, true);
+    lh.setUint16(10, time, true); lh.setUint16(12, date, true); lh.setUint32(14, crc, true);
+    lh.setUint32(18, size, true); lh.setUint32(22, size, true); lh.setUint16(26, nb.length, true); lh.setUint16(28, 0, true);
+    parts.push(lh.buffer, nb, file);
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true); ch.setUint16(10, 0, true);
+    ch.setUint16(12, time, true); ch.setUint16(14, date, true); ch.setUint32(16, crc, true); ch.setUint32(20, size, true); ch.setUint32(24, size, true);
+    ch.setUint16(28, nb.length, true); ch.setUint16(30, 0, true); ch.setUint16(32, 0, true); ch.setUint16(34, 0, true); ch.setUint16(36, 0, true);
+    ch.setUint32(38, 0, true); ch.setUint32(42, offset, true);
+    central.push(ch.buffer, nb);
+    offset += 30 + nb.length + size;
+    onProgress && onProgress(k + 1, entries.length);
+    await new Promise(r => setTimeout(r, 0));
+  }
+  const cdSize = central.reduce((s, b) => s + b.byteLength, 0);
+  const end = new DataView(new ArrayBuffer(22));
+  end.setUint32(0, 0x06054b50, true); end.setUint16(8, entries.length, true); end.setUint16(10, entries.length, true);
+  end.setUint32(12, cdSize, true); end.setUint32(16, offset, true);
+  return new Blob([...parts, ...central, end.buffer], { type: 'application/zip' });
+}
+
+/* ---------- saving ---------- */
+let downloads = null;
+const downloadsReady = (async () => {
+  if (!window.claude || typeof window.claude.use !== 'function') {
+    // los geopend in een browser: gewone download
+    downloads = { save: async ({ filename, data }) => {
+      const blob = data instanceof Blob ? data : new Blob([data], { type: 'text/csv;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = filename;
+      document.body.append(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 30000);
+      return { status: 'saved' };
+    } };
+    return downloads;
+  }
+  try { downloads = await window.claude.use('downloads'); } catch (e) { downloads = null; }
+  return downloads;
+})();
+const stamp = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+function saveError(e) {
+  const c = e && e.code;
+  if (c === 'declined') return;
+  if (c === 'rate_limited') toast('Er staat al een opslagvraag open.');
+  else if (c === 'too_large') toast('Dit is te groot om in één keer op te slaan. Haal een paar foto’s uit de lijst en probeer opnieuw.');
+  else toast('Opslaan lukte niet in deze weergave.');
+}
+let saving = false;
+async function save() {
+  if (!S.photos.length || saving) return;
+  if (document.activeElement === E.nbIn) commit(false);
+  const dl = await downloadsReady;
+  if (!dl) { toast('Opslaan is in deze weergave niet beschikbaar.'); return; }
+  saving = true;
+  try {
+    const list = exportList();
+    hud('Zip maken…');
+    const blob = await makeZip(list.map(x => ({ name: x.name, file: x.p.file })), (k, n) => hud(`Zip maken ${k}/${n}`));
+    hud('');
+    const zipName = (clean(settings.prefix) || 'Inspectiefoto’s') + ' ' + stamp() + '.zip';
+    await dl.save({ filename: zipName, data: blob });
+    S.savedRev = S.rev;
+    const noName = S.photos.filter(p => !p.name && !p.ai).length;
+    toast(`${list.length} ${plural(list.length, 'foto', 'foto’s')} bewaard` + (noName ? `. ${noName} zonder naam ${plural(noName, 'hield', 'hielden')} de originele naam.` : '.'));
+  } catch (e) { hud(''); saveError(e); }
+  finally { saving = false; }
+}
+E.saveBtn.addEventListener('click', save);
+
+async function saveCsv() {
+  const dl = await downloadsReady;
+  if (!dl) { toast('Opslaan is in deze weergave niet beschikbaar.'); return; }
+  commit(false);
+  const q = v => '"' + String(v).replace(/"/g, '""') + '"';
+  const rows = [['Nr', 'Bestandsnaam', 'Omschrijving', 'Origineel bestand']];
+  for (const x of exportList()) rows.push([numStr(x.i), x.name, x.p.name || x.p.ai || '', x.p.file.name]);
+  const csv = '\ufeff' + rows.map(r => r.map(q).join(';')).join('\r\n');
+  try { await dl.save({ filename: (clean(settings.prefix) || 'Inspectiefoto’s') + ' ' + stamp() + '.csv', data: csv }); toast('Lijst bewaard'); }
+  catch (e) { saveError(e); }
+}
+
+addEventListener('beforeunload', e => { if (S.photos.length && S.rev !== S.savedRev) { e.preventDefault(); e.returnValue = ''; } });
+
+/* ---------- herkennen met Claude ---------- */
+let sample = null, aiMax = 1;
+(async () => {
+  if (!window.claude || typeof window.claude.use !== 'function') return;
+  let s = null;
+  try { s = await window.claude.use('sample'); } catch (e) { s = null; }
+  if (!s) return;
+  const lim = await s.limits().catch(() => null);
+  if (!lim || !lim.images || !(lim.images.mediaTypes || []).includes('image/jpeg')) return;
+  sample = s;
+  aiMax = Math.max(1, Math.min(lim.images.maxCount || 1, 5));
+  updateAiBtn();
+})();
+
+function disableAi() { sample = null; if (S.ai) S.ai.ctl.abort(); updateAiBtn(); }
+async function aiBlobFor(p) {
+  if (p.aiBlob) return p.aiBlob;
+  const c = await scaled(p, 1280);
+  p.aiBlob = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.85));
+  return p.aiBlob;
+}
+function aiPrompt(k) {
+  const ctx = clean(settings.context);
+  return [
+    `Je helpt een inspecteur om inspectiefoto's snel een naam te geven. Je krijgt ${k === 1 ? '1 foto' : k + " foto's, in volgorde"}.`,
+    'Geef per foto een korte, feitelijke Nederlandse omschrijving die als bestandsnaam dient: welk onderdeel of welke plek je ziet, en wat opvalt (een gebrek, schade of bijzonderheid). Zie je niets bijzonders, beschrijf dan gewoon wat er in beeld is.',
+    'Regels: 2 tot 6 woorden, eerste letter een hoofdletter, geen nummers, datums, bestandsextensies, aanhalingstekens of punt aan het eind. Beschrijf alleen wat je echt ziet.',
+    'Voorbeelden van de stijl: Scheur in gevelmetselwerk, Vochtplek plafond badkamer, Meterkast overzicht, Roestvorming balkonhek.',
+    ctx ? 'Context van deze inspectie: ' + ctx : '',
+    `Antwoord alleen met een JSON-array van precies ${k} ${k === 1 ? 'string' : 'strings, in dezelfde volgorde als de foto\'s'}.`
+  ].filter(Boolean).join('\n\n');
+}
+function cleanAi(s) {
+  let t = String(s == null ? '' : s).replace(/^[\s"'“”‘’\-–•\d.)]+/, '').replace(/[\s"'“”‘’.]+$/, '').replace(/\.(jpe?g|png|heic|webp)$/i, '').replace(/\s+/g, ' ').trim().slice(0, 80);
+  return t ? t[0].toUpperCase() + t.slice(1) : '';
+}
+function aiError(e) {
+  const c = e && e.code;
+  if (c === 'cancelled') return false;
+  if (['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'capability_removed', 'images_unavailable', 'tools_unavailable'].includes(c)) {
+    disableAi(); toast('Herkennen is hier niet beschikbaar. Je kunt gewoon zelf typen.'); return true;
+  }
+  if (c === 'rate_limited') { toast('Even te veel tegelijk. Probeer het zo nog eens.'); return true; }
+  if (c === 'session_expired') { toast('Log opnieuw in bij Claude om te herkennen.'); return true; }
+  toast('Herkennen lukte niet voor een paar foto’s. Probeer het nog eens.');
+  return false;
+}
+async function recognize(list, signal, fresh) {
+  list = list.filter(p => !p.bad);
+  if (!list.length || !sample) return true;
+  list.forEach(p => { p.aiState = 'busy'; updateItem(p); });
+  updateAiBtn();
+  let fatal = false;
+  try {
+    const usable = [], blobs = [];
+    for (const p of list) {
+      try { const b = await aiBlobFor(p); if (b) { usable.push(p); blobs.push(b); } } catch (e) { p.bad = true; }
+    }
+    if (!usable.length) return true;
+    const opts = { images: blobs, modelTier: 'quick' };
+    if (signal) opts.signal = signal;
+    if (fresh) opts.cache = false;
+    const out = await sample.json(aiPrompt(usable.length), opts);
+    const arr = Array.isArray(out) ? out : (out && Array.isArray(out.namen) ? out.namen : []);
+    usable.forEach((p, k) => {
+      const v = cleanAi(arr[k]);
+      if (v) p.ai = v;
+    });
+    S.rev++;
+  } catch (e) { fatal = aiError(e); }
+  finally {
+    list.forEach(p => { p.aiState = ''; updateItem(p); });
+    const cur = current();
+    if (cur && list.includes(cur) && !cur.name && !S.dirty && S.view === 'single') loadInput();
+    updateChrome(); updateNamebar(); updateAiBtn();
+  }
+  return !fatal;
+}
+async function recognizeAll() {
+  if (S.ai) { S.ai.ctl.abort(); return; }
+  if (!sample) return;
+  commit(false);
+  const todo = S.photos.filter(p => !p.name && !p.ai && !p.bad);
+  if (!todo.length) {
+    toast(S.photos.some(p => !p.name) ? 'Alle foto’s zonder naam hebben al een suggestie.' : 'Alle foto’s hebben al een naam.');
+    return;
+  }
+  const ctl = new AbortController();
+  S.ai = { ctl, done: 0, total: todo.length };
+  updateAiBtn();
+  const chunks = [];
+  for (let i = 0; i < todo.length; i += aiMax) chunks.push(todo.slice(i, i + aiMax));
+  let idx = 0;
+  const worker = async () => {
+    while (idx < chunks.length && !ctl.signal.aborted) {
+      const c = chunks[idx++];
+      const ok = await recognize(c, ctl.signal, false);
+      if (S.ai) { S.ai.done += c.length; updateAiBtn(); }
+      if (!ok) ctl.abort();
+    }
+  };
+  await Promise.all([worker(), worker()]);
+  const stopped = ctl.signal.aborted;
+  S.ai = null;
+  updateAiBtn();
+  if (!stopped) {
+    const n = S.photos.filter(p => !p.name && p.ai).length;
+    if (n) toast(`${n} ${plural(n, 'suggestie', 'suggesties')} klaar. Loop ze door met Enter en pas aan waar nodig.`);
+    if (S.view === 'single') focusInput();
+  }
+}
+E.aiAllBtn.addEventListener('click', recognizeAll);
+E.nbAi.addEventListener('pointerdown', e => { if (document.activeElement === E.nbIn) e.preventDefault(); });
+E.nbAi.addEventListener('click', async () => {
+  const p = current();
+  if (!p || p.aiState === 'busy') return;
+  await recognize([p], null, !!p.ai);
+});
+
+updateAll();
+})();
+</script>
+</body>
+</html>
